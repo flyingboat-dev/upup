@@ -1,11 +1,14 @@
 {
   "name": "@flyingboat/upup",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "CLI tool for listing outdated dependencies",
+  "license": "Apache-2.0",
   "author": "Francois Lajoie",
-  "git": "https://github.com/flyingboat/upup",
-  "key": [
-    "upup",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/flyingboat-dev/upup.git"
+  },
+  "keywords": [
     "cli",
     "tool",
     "dependencies",
@@ -23,7 +26,7 @@
   },
   "packageManager": "pnpm@10.28.2",
   "devDependencies": {
-    "@types/node": "^25.1.0",
+    "@types/node": "^25.2.0",
     "rolldown": "^1.0.0-rc.2",
     "typescript": "~5.9.3"
   }
