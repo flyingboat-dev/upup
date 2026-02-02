@@ -1,7 +1,8 @@
 {
   "name": "@flyingboat/upup",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "CLI tool for listing outdated dependencies",
+  "author": "Francois Lajoie",
   "git": "https://github.com/flyingboat/upup",
   "key": [
     "upup",
@@ -10,9 +11,12 @@
     "dependencies",
     "update"
   ],
-  "author": "Francois Lajoie",
   "type": "module",
   "main": "dist/bundle.js",
+  "bin": {
+    "upup": "./dist/bundle.js"
+  },
+  "files": ["dist"],
   "scripts": {
     "dev": "node src/main.ts",
     "build": "rolldown -c rolldown.config.ts"
