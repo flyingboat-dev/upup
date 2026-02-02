@@ -1,0 +1,25 @@
+{
+  "dependencies": {
+    "@flyingboat/form-store-editor-ace": "workspace:*",
+    "@flyingboat/form-store-api": "workspace:*",
+    "@tailwindcss/postcss": "^4.1.16",
+    "@tailwindcss/vite": "^4.1.16",
+    "@tanstack/nitro-v2-vite-plugin": "^1.133.19",
+    "@tanstack/router-plugin": "^1.133.36",
+    "@tanstack/solid-query": "^5.90.8",
+    "@tanstack/solid-router": "^1.134.1",
+    "@tanstack/solid-router-devtools": "^1.134.1",
+    "@tanstack/solid-start": "^1.134.3",
+    "solid-js": "^1.9.10",
+    "tailwindcss": "^4.1.16"
+  },
+  "devDependencies": {
+    "daisyui": "^5.3.10",
+    "postcss": "^8.5.6",
+    "tailwind-merge": "^3.3.1",
+    "tailwindcss-animate": "^1.0.7",
+    "typescript": "^5.9.3",
+    "vite": "7.1.12",
+    "vite-plugin-solid": "2.11.10"
+  }
+}

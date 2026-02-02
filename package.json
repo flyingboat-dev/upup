@@ -1,0 +1,16 @@
+{
+  "name": "@flyingboat/upup",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "dist/bundle.js",
+  "scripts": {
+    "dev": "node src/main.ts",
+    "build": "rolldown -c rolldown.config.ts"
+  },
+  "packageManager": "pnpm@10.28.2",
+  "devDependencies": {
+    "@types/node": "^25.1.0",
+    "rolldown": "^1.0.0-rc.2",
+    "typescript": "~5.9.3"
+  }
+}
