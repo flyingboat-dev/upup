@@ -1,6 +1,16 @@
 {
   "name": "@flyingboat/upup",
   "version": "0.1.0",
+  "description": "CLI tool for listing outdated dependencies",
+  "git": "https://github.com/flyingboat/upup",
+  "key": [
+    "upup",
+    "cli",
+    "tool",
+    "dependencies",
+    "update"
+  ],
+  "author": "Francois Lajoie",
   "type": "module",
   "main": "dist/bundle.js",
   "scripts": {
