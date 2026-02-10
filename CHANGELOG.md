@@ -1,9 +1,13 @@
+# 0.2.1
+- Add tests
+- Handle prerelease versions
+
 # 0.2.0
 
 - Rework table output
-- Add support of a --ci flag for CICD pipelines
+- Add support the of --ci flag for CICD pipelines
 - Add version semver change
-- Handle non-existing version
+- Handle non-existing versions
 
 # 0.1.2
 

@@ -9,7 +9,7 @@ npm install -g @flyingboat/upup
 pnpm add -g @flyingboat/upup
 ```
 
-Via npx:
+or via npx:
 ```
 npx @flyingboat/upup
 pnpm dlx @flyingboat/upup
