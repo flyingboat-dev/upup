@@ -24,7 +24,7 @@ export function timeAgoFromAge(ts: number): string {
     }
 
     if (ts < year) {
-        if (ts > month) {
+        if (ts >= month) {
             return plural(Math.floor(ts / month), "month");
         }
         return plural(Math.floor(ts / day), "day");
@@ -36,8 +36,13 @@ export function timeAgoFromAge(ts: number): string {
 type Bump = "major" | "minor" | "patch" | "prerelease" | "none" | "invalid";
 
 export function getBump(current: string, latest: string): Bump {
+    if (!semver.prerelease(current) && semver.prerelease(latest)) {
+        return "prerelease";
+    }
+
     const c = semver.coerce(current)?.version;
     const l = semver.coerce(latest)?.version;
+
     if (!c || !l) {
         return "invalid";
     }

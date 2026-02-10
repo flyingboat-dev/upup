@@ -1,14 +1,14 @@
 import type { TableRow } from "./cli.ts";
 import { bold, gray, green, yellow } from "./cli-color.ts";
 
-const leftTopCorner = "┌";
-const rightTopCorner = "┐";
-const leftBottomCorner = "└";
-const rightBottomCorner = "┘";
-const leftMiddleCorner = "├";
-const rightMiddleCorner = "┤";
-const horizontal = "─";
-const vertical = "│";
+export const leftTopCorner = "┌";
+export const rightTopCorner = "┐";
+export const leftBottomCorner = "└";
+export const rightBottomCorner = "┘";
+export const leftMiddleCorner = "├";
+export const rightMiddleCorner = "┤";
+export const horizontal = "─";
+export const vertical = "│";
 
 export function renderTable(rows: TableRow[]) {
     console.log(table(rows).join("\n"));
@@ -72,7 +72,7 @@ export function table(rows: TableRow[]): string[] {
     return content;
 }
 
-class Line {
+export class Line {
     private content: string[] = [];
 
     push(text: string): void {
