@@ -1,6 +1,6 @@
 {
     "name": "@flyingboat/upup",
-    "version": "0.2.1",
+    "version": "0.3.0",
     "description": "CLI tool for listing outdated dependencies",
     "license": "Apache-2.0",
     "author": "Francois Lajoie",

@@ -1,11 +1,16 @@
+# 0.3.0
+
+- Add --compact flag for compact output
+
 # 0.2.1
+
 - Add tests
 - Handle prerelease versions
 
 # 0.2.0
 
 - Rework table output
-- Add support the of --ci flag for CICD pipelines
+- Add the support of --ci flag for CICD pipelines
 - Add version semver change
 - Handle non-existing versions
 

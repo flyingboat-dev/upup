@@ -11,7 +11,8 @@
             "!**/tmp",
             "!**/coverage",
             "!**/build",
-            "!**/.turbo"
+            "!**/.turbo",
+            "!**/test/fixtures"
         ]
     },
     "formatter": {
