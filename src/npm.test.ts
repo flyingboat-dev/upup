@@ -28,6 +28,7 @@ describe("npm helpers (registry fixture: eslint)", () => {
         const latest = npm.getLatestVersion(eslintInfo);
         expect(latest).toBeTruthy();
 
+        // biome-ignore lint/style/noNonNullAssertion: should not be undefined
         const releaseDate = npm.getVersionReleaseDateOf(eslintInfo, latest!);
 
         // Some packages might not have a time entry for every version; if present, validate shape.
@@ -43,6 +44,7 @@ describe("npm helpers (registry fixture: eslint)", () => {
         const latest = npm.getLatestVersion(eslintInfo);
         expect(latest).toBeTruthy();
 
+        // biome-ignore lint/style/noNonNullAssertion: should not be undefined
         const age = npm.getVersionAgeOf(eslintInfo, latest!);
 
         if (age !== undefined) {
