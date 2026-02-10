@@ -9,6 +9,12 @@ npm install -g @flyingboat/upup
 pnpm add -g @flyingboat/upup
 ```
 
+Via npx:
+```
+npx @flyingboat/upup
+pnpm dlx @flyingboat/upup
+```
+
 ## Usage
 
 Run in the current project:
@@ -17,3 +23,8 @@ Run in the current project:
 upup
 ```
 
+for CICD
+
+```
+upup --ci
+```
