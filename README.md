@@ -1,6 +1,6 @@
 # @flyingboat/upup
 
-CLI to check dependency versions in a project and show which ones are outdated.
+CLI tool to check dependency versions in a project and show which ones are outdated.
 
 ## Install (global)
 

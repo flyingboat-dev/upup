@@ -1,33 +1,35 @@
 {
-  "name": "@flyingboat/upup",
-  "version": "0.1.2",
-  "description": "CLI tool for listing outdated dependencies",
-  "license": "Apache-2.0",
-  "author": "Francois Lajoie",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/flyingboat-dev/upup.git"
-  },
-  "keywords": [
-    "cli",
-    "tool",
-    "dependencies",
-    "update"
-  ],
-  "type": "module",
-  "main": "dist/bundle.js",
-  "bin": {
-    "upup": "./dist/bundle.js"
-  },
-  "files": ["dist"],
-  "scripts": {
-    "dev": "node src/main.ts",
-    "build": "rolldown -c rolldown.config.ts"
-  },
-  "packageManager": "pnpm@10.28.2",
-  "devDependencies": {
-    "@types/node": "^25.2.0",
-    "rolldown": "^1.0.0-rc.2",
-    "typescript": "~5.9.3"
-  }
+    "name": "@flyingboat/upup",
+    "version": "0.2.0",
+    "description": "CLI tool for listing outdated dependencies",
+    "license": "Apache-2.0",
+    "author": "Francois Lajoie",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/flyingboat-dev/upup.git"
+    },
+    "keywords": ["cli", "tool", "dependencies", "update"],
+    "type": "module",
+    "main": "dist/bundle.js",
+    "bin": {
+        "upup": "./dist/bundle.js"
+    },
+    "files": ["dist"],
+    "scripts": {
+        "dev": "node src/main.ts",
+        "build": "rolldown -c rolldown.config.ts",
+        "check": "pnpm dlx @biomejs/biome check --write",
+        "prepublish": "pnpm run check && pnpm run build"
+    },
+    "packageManager": "pnpm@10.29.1",
+    "dependencies": {
+        "semver": "^7.7.4"
+    },
+    "devDependencies": {
+        "@biomejs/biome": "^4.3.14",
+        "@types/node": "^25.2.2",
+        "@types/semver": "^7.7.1",
+        "rolldown": "^1.0.0-rc.3",
+        "typescript": "~5.9.3"
+    }
 }

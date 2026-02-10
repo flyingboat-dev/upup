@@ -6,7 +6,7 @@ export default defineConfig({
         file: "dist/bundle.js",
         format: "esm",
     },
-    // For Node CLIs: don't try to bundle Node built-ins
+    //  don't try to bundle Node built-ins for cli
     external: [/^node:/],
     platform: "node",
 });
