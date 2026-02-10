@@ -1,17 +1,29 @@
+import { renderTable } from "./cli-table.ts";
+import { getBump, timeAgoFromAge } from "./helpers.ts";
 import type { Dependency } from "./npm.ts";
-import { timeAgoFromAge } from "./helpers.ts";
 
 const defaultRefreshInterval = 80;
 export const spinnerFrames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
 
 export type RenderProps = {
-    deps: Row[]
-}
+    deps: Row[];
+};
 
 export type Row = {
-    dep: Dependency,
-    status: string,
-    needUpdate: boolean
+    dep: Dependency;
+    status: string;
+    needUpdate: boolean;
+};
+
+export interface TableRow {
+    package: string;
+    current: string;
+    age: string;
+    latest: string;
+    latestAge: string;
+    status: string;
+    change: string;
+    [key: string]: string;
 }
 
 export class Renderer<TProps = RenderProps> {
@@ -31,34 +43,55 @@ export function spinner(refreshInterval: number = defaultRefreshInterval) {
     return spinnerFrames[i];
 }
 
-export function renderDepsTable(rows: Row[], refreshInterval: number = defaultRefreshInterval) {
-    const nDeps = rows.filter(x => x.dep.type === 'dep').length;
-    const nDevDeps = rows.filter(x => x.dep.type === 'devDep').length;
+function renderDepsTable(rows: Row[], refreshInterval: number = defaultRefreshInterval) {
+    const nDeps = rows.filter((x) => x.dep.type === "dep").length;
+    const nDevDeps = rows.filter((x) => x.dep.type === "devDep").length;
     const fn = (r: Row) => {
+        if (r.status === "error") {
+            console.error(`Failed to fetch ${r.dep.name}`);
+        }
+
+        let age = r.dep.versionValid ? "-" : "invalid version";
+        if (!r.dep.localDep && r.dep.versionValid) {
+            age = r.dep.versionAge ? timeAgoFromAge(r.dep.versionAge) : spinner(refreshInterval);
+        }
+
+        let latestAge = r.dep.localDep ? "-" : spinner(refreshInterval);
+        if (!r.dep.localDep && r.dep.latestVersionAge) {
+            latestAge = timeAgoFromAge(r.dep.latestVersionAge);
+        }
+
+        const status =
+            r.status === "pending"
+                ? spinner(refreshInterval)
+                : r.status === "done" && r.needUpdate
+                  ? "need update"
+                  : "ok";
+
+        const change = r.needUpdate ? getBump(r.dep.version, r.dep.latestVersion ?? "") : "-";
+
         return {
             package: r.dep.name,
             current: r.dep.version,
-            age: r.dep.localDep ? "" : r.dep.versionAge ? timeAgoFromAge(r.dep.versionAge) : spinner(refreshInterval),
+            age,
             latest: r.dep.latestVersion ?? spinner(refreshInterval),
-            latestAge: r.dep.localDep ? "" : r.dep.latestVersionAge ? timeAgoFromAge(r.dep.latestVersionAge) : spinner(refreshInterval),
-            status: r.status === "pending" ? spinner(refreshInterval) : r.status === "done" && r.needUpdate ? "need update" : "ok",
-        }
-    }
+            latestAge,
+            status,
+            change,
+        };
+    };
     if (nDeps > 0) {
         console.log(`${nDeps} Dependencies`);
-        console.table(
-            rows.filter(x => x.dep.type === 'dep')
-                .map((r) => fn(r))
-        );
+        renderTable(rows.filter((x) => x.dep.type === "dep").map((r) => fn(r)));
     }
 
     if (nDevDeps > 0) {
+        if (nDeps > 0) {
+            console.log("");
+        }
         console.log(`${nDevDeps} Dev Dependencies`);
-        console.table(
-            rows.filter(x => x.dep.type === 'devDep')
-                .map((r) => fn(r))
-        );
+        renderTable(rows.filter((x) => x.dep.type === "devDep").map((r) => fn(r)));
     }
 }
 
-
+export default renderDepsTable;

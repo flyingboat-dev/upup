@@ -1,33 +1,34 @@
 import * as fs from "node:fs";
 
 export type PackageJson = {
-    deps: Record<string, string>,
-    devDeps: Record<string, string>
-}
+    deps: Record<string, string>;
+    devDeps: Record<string, string>;
+};
 
 export type Dependency = {
-    type: 'dep' | 'devDep',
-    localDep: boolean,
-    name: string,
-    version: string,
-    versionAge: number | undefined,
-    info: RegistryInfo | undefined,
+    type: "dep" | "devDep";
+    localDep: boolean;
+    name: string;
+    version: string;
+    versionValid: boolean;
+    versionAge: number | undefined;
+    info: RegistryInfo | undefined;
     latestVersion: string | undefined;
     latestVersionAge: number | undefined;
-}
+};
 
 export type RegistryInfo = {
-    "dist-tags": Record<string, string>,
-    versions: Record<string, any>[],
-    time: Record<string, string>
-}
+    "dist-tags": Record<string, string>;
+    versions: Record<string, any>[];
+    time: Record<string, string>;
+};
 
 export function getPackageJson(packageJsonPath: string): PackageJson {
-    const packageJsonContent = fs.readFileSync(packageJsonPath, 'utf-8');
+    const packageJsonContent = fs.readFileSync(packageJsonPath, "utf-8");
     const packageJson = JSON.parse(packageJsonContent);
     return {
         deps: packageJson.dependencies || {},
-        devDeps: packageJson.devDependencies || {}
+        devDeps: packageJson.devDependencies || {},
     };
 }
 
@@ -36,29 +37,29 @@ export function getPackageJsonDeps(packageJsonPath: string): Dependency[] {
     const deps: Dependency[] = [];
     const fn = (entries: Record<string, string>, t: string) => {
         for (const [name, version] of Object.entries(entries)) {
-            const localDep = version.startsWith('file:') || version.startsWith("workspace:");
+            const localDep = version.startsWith("file:") || version.startsWith("workspace:");
             const v = localDep ? version : normalizeVersion(version);
             deps.push({
                 type: t as Dependency["type"],
                 localDep,
                 name,
                 version: v,
+                versionValid: true,
                 versionAge: undefined,
                 info: undefined,
                 latestVersion: undefined,
-                latestVersionAge: undefined
+                latestVersionAge: undefined,
             });
         }
-    }
-    fn(packageJson.deps, 'dep');
-    fn(packageJson.devDeps, 'devDep');
+    };
+    fn(packageJson.deps, "dep");
+    fn(packageJson.devDeps, "devDep");
     return deps;
 }
 
-
 // remove first non digit character
 export function normalizeVersion(version: string): string {
-    return version.replace(/^[^0-9]/, '');
+    return version.replace(/^[^0-9]/, "");
 }
 
 export async function getPkgRegistryInfo(pkg: string): Promise<RegistryInfo> {
