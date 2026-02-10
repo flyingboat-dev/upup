@@ -1,4 +1,4 @@
-import type { TableRow } from "./cli.ts";
+import type { OutputRow } from "./cli.ts";
 import { bold, gray, green, yellow } from "./cli-color.ts";
 
 export const leftTopCorner = "┌";
@@ -10,11 +10,11 @@ export const rightMiddleCorner = "┤";
 export const horizontal = "─";
 export const vertical = "│";
 
-export function renderTable(rows: TableRow[]) {
+export function renderTable(rows: OutputRow[]) {
     console.log(table(rows).join("\n"));
 }
 
-export function table(rows: TableRow[]): string[] {
+export function table(rows: OutputRow[]): string[] {
     const content: string[] = [];
     const headers = Object.keys(rows[0]);
     const nbrCols = headers.length;

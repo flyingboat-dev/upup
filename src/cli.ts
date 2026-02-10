@@ -1,12 +1,16 @@
+import { renderCompact } from "./cli-compact.ts";
 import { renderTable } from "./cli-table.ts";
 import { getBump, timeAgoFromAge } from "./helpers.ts";
 import type { Dependency } from "./npm.ts";
 
-const defaultRefreshInterval = 80;
-export const spinnerFrames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
+const spinnerFrames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
 
-export type RenderProps = {
-    deps: Row[];
+export type OutputContext = {
+    refreshInterval: number;
+};
+
+export const defaultCtx: OutputContext = {
+    refreshInterval: 80,
 };
 
 export type Row = {
@@ -15,16 +19,20 @@ export type Row = {
     needUpdate: boolean;
 };
 
-export interface TableRow {
+export interface OutputRow {
     package: string;
     current: string;
     age: string;
     latest: string;
     latestAge: string;
-    status: string;
+    status: "need update" | "ok";
     change: string;
     [key: string]: string;
 }
+
+export type RenderProps = {
+    deps: Row[];
+};
 
 export class Renderer<TProps = RenderProps> {
     private readonly _renderFn: (props: TProps) => void;
@@ -38,60 +46,84 @@ export class Renderer<TProps = RenderProps> {
     }
 }
 
-export function spinner(refreshInterval: number = defaultRefreshInterval) {
-    const i = Math.floor(Date.now() / refreshInterval) % spinnerFrames.length;
+function spinner(ctx: OutputContext) {
+    const i = Math.floor(Date.now() / ctx.refreshInterval) % spinnerFrames.length;
     return spinnerFrames[i];
 }
 
-function renderDepsTable(rows: Row[], refreshInterval: number = defaultRefreshInterval) {
-    const nDeps = rows.filter((x) => x.dep.type === "dep").length;
-    const nDevDeps = rows.filter((x) => x.dep.type === "devDep").length;
-    const fn = (r: Row) => {
-        if (r.status === "error") {
-            console.error(`Failed to fetch ${r.dep.name}`);
-        }
-
-        let age = r.dep.versionValid ? "-" : "invalid version";
-        if (!r.dep.localDep && r.dep.versionValid) {
-            age = r.dep.versionAge ? timeAgoFromAge(r.dep.versionAge) : spinner(refreshInterval);
-        }
-
-        let latestAge = r.dep.localDep ? "-" : spinner(refreshInterval);
-        if (!r.dep.localDep && r.dep.latestVersionAge) {
-            latestAge = timeAgoFromAge(r.dep.latestVersionAge);
-        }
-
-        const status =
-            r.status === "pending"
-                ? spinner(refreshInterval)
-                : r.status === "done" && r.needUpdate
-                  ? "need update"
-                  : "ok";
-
-        const change = r.needUpdate ? getBump(r.dep.version, r.dep.latestVersion ?? "") : "-";
-
-        return {
-            package: r.dep.name,
-            current: r.dep.version,
-            age,
-            latest: r.dep.latestVersion ?? spinner(refreshInterval),
-            latestAge,
-            status,
-            change,
-        };
-    };
-    if (nDeps > 0) {
-        console.log(`${nDeps} Dependencies`);
-        renderTable(rows.filter((x) => x.dep.type === "dep").map((r) => fn(r)));
+function parseRow(r: Row, ctx: OutputContext): OutputRow {
+    if (r.status === "error") {
+        console.error(`Failed to fetch ${r.dep.name}`);
     }
 
-    if (nDevDeps > 0) {
-        if (nDeps > 0) {
+    let age = r.dep.versionValid ? "-" : "invalid version";
+    if (!r.dep.localDep && r.dep.versionValid) {
+        age = r.dep.versionAge ? timeAgoFromAge(r.dep.versionAge) : spinner(ctx);
+    }
+
+    let latestAge = r.dep.localDep ? "-" : spinner(ctx);
+    if (!r.dep.localDep && r.dep.latestVersionAge) {
+        latestAge = timeAgoFromAge(r.dep.latestVersionAge);
+    }
+
+    const status = (
+        r.status === "pending" ? spinner(ctx) : r.status === "done" && r.needUpdate ? "need update" : "ok"
+    ) as OutputRow["status"];
+
+    const change = r.needUpdate ? getBump(r.dep.version, r.dep.latestVersion ?? "") : "-";
+
+    return {
+        package: r.dep.name,
+        current: r.dep.version,
+        age,
+        latest: r.dep.latestVersion ?? spinner(ctx),
+        latestAge,
+        status,
+        change,
+    };
+}
+
+function unwrap(rows: Row[], ctx: OutputContext): { deps: OutputRow[]; devDeps: OutputRow[] } {
+    return {
+        deps: rows.filter((x) => x.dep.type === "dep").map((r) => parseRow(r, ctx)),
+        devDeps: rows.filter((x) => x.dep.type === "devDep").map((r) => parseRow(r, ctx)),
+    };
+}
+
+function pluralDependency(n: number): string {
+    return `${n} Dependenc${n === 1 ? "y" : "ies"}`;
+}
+
+export function renderDepsCompact(rows: Row[], ctx: OutputContext): void {
+    const { deps, devDeps } = unwrap(rows, ctx);
+
+    if (deps.length > 0) {
+        console.log(`${pluralDependency(deps.length)}\n`);
+        renderCompact(deps);
+    }
+
+    if (devDeps.length > 0) {
+        if (deps.length > 0) {
             console.log("");
         }
-        console.log(`${nDevDeps} Dev Dependencies`);
-        renderTable(rows.filter((x) => x.dep.type === "devDep").map((r) => fn(r)));
+        console.log(`${pluralDependency(devDeps.length)}\n`);
+        renderCompact(devDeps);
     }
 }
 
-export default renderDepsTable;
+export function renderDepsTable(rows: Row[], ctx: OutputContext) {
+    const { deps, devDeps } = unwrap(rows, ctx);
+
+    if (deps.length > 0) {
+        console.log(`${pluralDependency(deps.length)}\n`);
+        renderTable(deps);
+    }
+
+    if (devDeps.length > 0) {
+        if (deps.length > 0) {
+            console.log("");
+        }
+        console.log(`${pluralDependency(devDeps.length)}\n`);
+        renderTable(devDeps);
+    }
+}

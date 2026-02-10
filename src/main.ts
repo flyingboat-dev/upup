@@ -1,6 +1,13 @@
 import * as fs from "node:fs";
 import * as process from "node:process";
-import renderDepsTable, { Renderer, type RenderProps } from "./cli.ts";
+import {
+    defaultCtx,
+    type OutputContext,
+    Renderer,
+    type RenderProps,
+    renderDepsCompact,
+    renderDepsTable,
+} from "./cli.ts";
 import { green, yellow } from "./cli-color.ts";
 import { getLatestVersion, getPackageJsonDeps, getPkgRegistryInfo, getVersionAgeOf } from "./npm.ts";
 
@@ -12,6 +19,7 @@ if (!process || !process.argv) {
 let args: string[] = process.argv;
 args = args.slice(2);
 
+let compact: boolean = false;
 let ci: boolean = false;
 let cwd = process.cwd();
 if (args.length > 0) {
@@ -19,6 +27,8 @@ if (args.length > 0) {
         if (arg.startsWith("--")) {
             if (arg === "--ci") {
                 ci = true;
+            } else if (arg === "--compact") {
+                compact = true;
             }
         } else {
             cwd = args[0];
@@ -26,7 +36,7 @@ if (args.length > 0) {
     }
 }
 
-const refreshInterval = 80;
+const ctx: OutputContext = defaultCtx;
 
 async function run() {
     console.log("Checking for packages updates ...\n");
@@ -34,7 +44,11 @@ async function run() {
         if (!ci) {
             console.clear();
         }
-        renderDepsTable(props.deps);
+        if (compact) {
+            renderDepsCompact(props.deps, ctx);
+            return;
+        }
+        renderDepsTable(props.deps, ctx);
     });
 
     const pkgFile = `${cwd}/package.json`;
@@ -52,7 +66,7 @@ async function run() {
         })),
     };
 
-    const ticker = ci ? null : setInterval(() => renderer.render(props), refreshInterval);
+    const ticker = ci ? null : setInterval(() => renderer.render(props), ctx.refreshInterval);
 
     const tasks = props.deps.map(async (row) => {
         try {
