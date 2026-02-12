@@ -23,8 +23,8 @@ Run in the current project:
 upup
 ```
 
-for CICD
+## Flags
 
-```
-upup --ci
-```
+- `--ci`: Run in CI mode, disabling animations
+- `--compact`: Render the result in a compact format
+- `--export-to-file`: Export the result to a file instead of printing it to stdout

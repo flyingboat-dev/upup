@@ -1,3 +1,7 @@
+# 0.4.0
+
+- Add --export-to-file flag to save the output to a file
+
 # 0.3.0
 
 - Add --compact flag for compact output
