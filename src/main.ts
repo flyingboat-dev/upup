@@ -1,14 +1,8 @@
 import * as fs from "node:fs";
 import * as process from "node:process";
-import {
-    defaultCtx,
-    type OutputContext,
-    Renderer,
-    type RenderProps,
-    renderDepsCompact,
-    renderDepsTable,
-} from "./cli.ts";
+import { type OutputContext, Renderer, type RenderProps, renderDepsCompact, renderDepsTable } from "./cli.ts";
 import { green, yellow } from "./cli-color.ts";
+import { CliOutput, FileOutput } from "./console.ts";
 import { getLatestVersion, getPackageJsonDeps, getPkgRegistryInfo, getVersionAgeOf } from "./npm.ts";
 
 if (!process || !process.argv) {
@@ -16,40 +10,37 @@ if (!process || !process.argv) {
     process.exit(1);
 }
 
-let args: string[] = process.argv;
-args = args.slice(2);
+async function run() {
+    let args: string[] = process.argv;
+    args = args.slice(2);
 
-let compact: boolean = false;
-let ci: boolean = false;
-let cwd = process.cwd();
-if (args.length > 0) {
-    for (const arg of args) {
-        if (arg.startsWith("--")) {
-            if (arg === "--ci") {
-                ci = true;
-            } else if (arg === "--compact") {
-                compact = true;
+    let compact: boolean = false;
+    let ci: boolean = false;
+    let cwd = process.cwd();
+    let outputType: "cli" | "file" = "cli";
+
+    if (args.length > 0) {
+        for (const arg of args) {
+            if (arg.startsWith("--")) {
+                if (arg === "--ci") {
+                    ci = true;
+                } else if (arg === "--compact") {
+                    compact = true;
+                } else if (arg === "--export-to-file") {
+                    outputType = "file";
+                }
+            } else {
+                cwd = args[0];
             }
-        } else {
-            cwd = args[0];
         }
     }
-}
 
-const ctx: OutputContext = defaultCtx;
+    const ctx: OutputContext = {
+        console: outputType === "cli" ? new CliOutput() : new FileOutput(),
+        refreshInterval: 80,
+    };
 
-async function run() {
     console.log("Checking for packages updates ...\n");
-    const renderer = new Renderer<RenderProps>((props) => {
-        if (!ci) {
-            console.clear();
-        }
-        if (compact) {
-            renderDepsCompact(props.deps, ctx);
-            return;
-        }
-        renderDepsTable(props.deps, ctx);
-    });
 
     const pkgFile = `${cwd}/package.json`;
 
@@ -65,6 +56,17 @@ async function run() {
             status: "pending",
         })),
     };
+
+    const renderer = new Renderer<RenderProps>((props) => {
+        if (!ci) {
+            console.clear();
+        }
+        if (compact) {
+            renderDepsCompact(props.deps, ctx);
+            return;
+        }
+        renderDepsTable(props.deps, ctx);
+    });
 
     const ticker = ci ? null : setInterval(() => renderer.render(props), ctx.refreshInterval);
 
@@ -104,8 +106,13 @@ async function run() {
     renderer.render(props); // final render
 
     const nOutdated = props.deps.filter((x) => x.needUpdate).length;
-    const nUpToDate = props.deps.filter((x) => !x.needUpdate).length;
-    console.log(`\n${yellow(`${nOutdated}`)} outdated, ${green(`${nUpToDate}`)} up to date`);
+    const nUpToDate = props.deps.length - nOutdated;
+    ctx.console.log(`\n${yellow(`${nOutdated}`)} outdated, ${green(`${nUpToDate}`)} up to date`);
+
+    if ("saveTo" in ctx.console) {
+        (ctx.console as FileOutput).saveTo(".upup_report");
+        console.log("Result saved to .upup_report");
+    }
 }
 
 run().catch((err) => {

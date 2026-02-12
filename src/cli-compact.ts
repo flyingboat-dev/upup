@@ -1,8 +1,8 @@
-import type { OutputRow } from "./cli.ts";
+import type { OutputContext, OutputRow } from "./cli.ts";
 import { bold, green, yellow } from "./cli-color.ts";
 
-export function renderCompact(rows: OutputRow[]): void {
-    console.log(compact(rows).join("\n"));
+export function renderCompact(rows: OutputRow[], ctx: OutputContext): void {
+    ctx.console.log(compact(rows).join("\n"));
 }
 
 export function compact(rows: OutputRow[]): string[] {

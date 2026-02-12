@@ -48,3 +48,8 @@ export const underline = (t: string) => wrap(t, codes.underline);
 export const success = (t: string) => wrap(t, codes.green);
 export const warn = (t: string) => wrap(t, codes.yellow);
 export const error = (t: string) => wrap(t, codes.red, codes.bold);
+
+export function clearColor(t: string) {
+    // biome-ignore lint/suspicious/noControlCharactersInRegex: clear color
+    return t.replace(/\x1b\[[0-9;]*m/g, "");
+}

@@ -1,16 +1,14 @@
 import { renderCompact } from "./cli-compact.ts";
 import { renderTable } from "./cli-table.ts";
+import type { Output } from "./console.ts";
 import { getBump, timeAgoFromAge } from "./helpers.ts";
 import type { Dependency } from "./npm.ts";
 
 const spinnerFrames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
 
 export type OutputContext = {
+    console: Output;
     refreshInterval: number;
-};
-
-export const defaultCtx: OutputContext = {
-    refreshInterval: 80,
 };
 
 export type Row = {
@@ -53,7 +51,7 @@ function spinner(ctx: OutputContext) {
 
 function parseRow(r: Row, ctx: OutputContext): OutputRow {
     if (r.status === "error") {
-        console.error(`Failed to fetch ${r.dep.name}`);
+        ctx.console.error(`Failed to fetch ${r.dep.name}`);
     }
 
     let age = r.dep.versionValid ? "-" : "invalid version";
@@ -98,16 +96,16 @@ export function renderDepsCompact(rows: Row[], ctx: OutputContext): void {
     const { deps, devDeps } = unwrap(rows, ctx);
 
     if (deps.length > 0) {
-        console.log(`${pluralDependency(deps.length)}\n`);
-        renderCompact(deps);
+        ctx.console.log(`${pluralDependency(deps.length)}\n`);
+        renderCompact(deps, ctx);
     }
 
     if (devDeps.length > 0) {
         if (deps.length > 0) {
-            console.log("");
+            ctx.console.log("");
         }
-        console.log(`${pluralDependency(devDeps.length)}\n`);
-        renderCompact(devDeps);
+        ctx.console.log(`${pluralDependency(devDeps.length)}\n`);
+        renderCompact(devDeps, ctx);
     }
 }
 
@@ -115,15 +113,15 @@ export function renderDepsTable(rows: Row[], ctx: OutputContext) {
     const { deps, devDeps } = unwrap(rows, ctx);
 
     if (deps.length > 0) {
-        console.log(`${pluralDependency(deps.length)}\n`);
-        renderTable(deps);
+        ctx.console.log(`${pluralDependency(deps.length)}\n`);
+        renderTable(deps, ctx);
     }
 
     if (devDeps.length > 0) {
         if (deps.length > 0) {
-            console.log("");
+            ctx.console.log("");
         }
-        console.log(`${pluralDependency(devDeps.length)}\n`);
-        renderTable(devDeps);
+        ctx.console.log(`${pluralDependency(devDeps.length)}\n`);
+        renderTable(devDeps, ctx);
     }
 }

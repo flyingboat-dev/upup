@@ -6,6 +6,7 @@ vi.mock("./cli-color.ts", () => {
     return { bold: x, gray: x, green: x, yellow: x };
 });
 
+import type { OutputContext } from "./cli";
 import { renderTable, table, vertical } from "./cli-table.ts";
 
 type Row = Record<string, string>;
@@ -74,8 +75,12 @@ describe("cli-table: renderTable()", () => {
         const logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
 
         const rows: Row[] = [{ package: "pkg", current: "1", latest: "2", status: "ok" }];
+        const ctx: OutputContext = {
+            console: console,
+            refreshInterval: 80,
+        };
 
-        renderTable(rows as any);
+        renderTable(rows as any, ctx);
 
         expect(logSpy).toHaveBeenCalledTimes(1);
         const printed = String(logSpy.mock.calls[0]?.[0] ?? "");
